@@ -15,4 +15,8 @@ function main() {
     console.log(i);
   }
 }
+(function zero () {
+  console.log("Hello github")
+})()
+
 main();
