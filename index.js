@@ -237,7 +237,6 @@ function recCount(data) {
   }, 0);
 }
 
-
 // object flattern
 
 const input = {
@@ -245,18 +244,18 @@ const input = {
     name: "Alice",
     address: {
       city: "Delhi",
-      pin: 110011
+      pin: 110011,
     },
     course: ["Java", "Javascript"],
-  }
+  },
 };
 
 function flatternObject(obj, prefix = "", result = {}) {
-  for(let key in obj){
+  for (let key in obj) {
     const value = obj[key];
     const fullKey = prefix ? `${prefix}.${key}` : key;
 
-    if(typeof value === 'object' && value !== null && !Array.isArray(value)){
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
       flatternObject(value, fullKey, result);
     } else {
       result[fullKey] = value;
@@ -265,22 +264,19 @@ function flatternObject(obj, prefix = "", result = {}) {
   return result;
 }
 
-
 // closures
 function counter() {
   let counter = 0;
-  return function (){
+  return function () {
     return ++counter;
-  }
+  };
 }
-
 
 const counter1 = counter();
 const counter2 = counter();
 // console.log("counter 1 => ",counter1());
 // console.log("counter 2 => ",counter2());
 // console.log("counter 1 => ", counter1());
-
 
 // infinite currying
 
@@ -290,18 +286,85 @@ const counter2 = counter();
 function add(a) {
   let sum = a;
   function inner(b) {
-    if(b === undefined) return sum;
+    if (b === undefined) return sum;
     sum += b;
     return inner;
   }
   return inner;
 }
 
+// console.log(add(1)(2)(3)(4)(5)()); // Output: 15
+// console.log(add(10)(-5)(3)(2)()); // Output: 10
 
-console.log(add(1)(2)(3)(4)(5)());  // Output: 15
-console.log(add(10)(-5)(3)(2)());  // Output: 10
+function deepEqualObject(p1, p2) {
+  if (p1 === p2) return true;
 
+  if (
+    typeof p1 !== "object" ||
+    p1 === null ||
+    typeof p2  !== "object" ||
+    p2 === null
+  )
+    return false;
 
+  const keys1 = Object.keys(p1);
+  const keys2 = Object.keys(p2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (const key of keys1) {
+    if (!keys2.includes(key)) return false;
+
+    const val1 = p1[key];
+    const val2 = p2[key];
+
+    const isBothAreObject =
+      typeof val1 === "object" &&
+      typeof val2 === "object" &&
+      val1 !== null &&
+      val2 !== null;
+
+    if (isBothAreObject) {
+      if (!deepEqualObject(val1, val2)) return false;
+    } else {
+      if (val1 !== val2) return false;
+    }
+  }
+  return true;
+}
+
+const person1 = {
+  name: "John",
+  details: {
+    age: 30,
+    skills: {
+      primary: "JavaScript",
+    },
+  },
+};
+
+const person2 = {
+  name: "John",
+  details: {
+    age: 30,
+    skills: {
+      primary: "JavaScript",
+    },
+  },
+};
+
+const person3 = {
+  name: "John",
+  details: {
+    age: 31,
+    skills: {
+      primary: "JavaScript",
+    },
+  },
+};
+
+console.log(deepEqualObject(person1, person2)); // true ✅
+console.log(deepEqualObject(person2, person3)); // false ❌
 
 // Create a function createExpiringObject(obj, timeout) that returns a proxy object.
 // All properties should automatically delete themselves after `timeout` milliseconds.
@@ -312,5 +375,3 @@ console.log(add(10)(-5)(3)(2)());  // Output: 10
 // setTimeout(() => console.log(user.name), 3000); // undefined
 
 // ?? pending
-
-     
