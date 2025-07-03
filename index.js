@@ -237,3 +237,32 @@ function recCount(data) {
   }, 0);
 }
 
+
+// object flattern
+
+const input = {
+  user: {
+    name: "Alice",
+    address: {
+      city: "Delhi",
+      pin: 110011
+    },
+    course: ["Java", "Javascript"],
+  }
+};
+
+function flatternObject(obj, prefix = "", result = {}) {
+  for(let key in obj){
+    const value = obj[key];
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if(typeof value === 'object' && value !== null && !Array.isArray(value)){
+      flatternObject(value, fullKey, result);
+    } else {
+      result[fullKey] = value;
+    }
+  }
+  return result;
+}
+
+console.log(flatternObject(input));
