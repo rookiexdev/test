@@ -265,4 +265,52 @@ function flatternObject(obj, prefix = "", result = {}) {
   return result;
 }
 
-console.log(flatternObject(input));
+
+// closures
+function counter() {
+  let counter = 0;
+  return function (){
+    return ++counter;
+  }
+}
+
+
+const counter1 = counter();
+const counter2 = counter();
+// console.log("counter 1 => ",counter1());
+// console.log("counter 2 => ",counter2());
+// console.log("counter 1 => ", counter1());
+
+
+// infinite currying
+
+// console.log(add(1)(2)(3)(4)(5)());  // Output: 15
+// console.log(add(10)(-5)(3)(2)());  // Output: 10
+
+function add(a) {
+  let sum = a;
+  function inner(b) {
+    if(b === undefined) return sum;
+    sum += b;
+    return inner;
+  }
+  return inner;
+}
+
+
+console.log(add(1)(2)(3)(4)(5)());  // Output: 15
+console.log(add(10)(-5)(3)(2)());  // Output: 10
+
+
+
+// Create a function createExpiringObject(obj, timeout) that returns a proxy object.
+// All properties should automatically delete themselves after `timeout` milliseconds.
+
+// const user = createExpiringObject({ name: "Rahul", age: 30 }, 2000);
+
+// console.log(user.name); // "Rahul"
+// setTimeout(() => console.log(user.name), 3000); // undefined
+
+// ?? pending
+
+     
