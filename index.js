@@ -672,4 +672,48 @@ function unFlattern2(obj) {
   return result;
 }
 
-console.log(unFlattern2(flatternPersonObj));
+// console.log(unFlattern2(flatternPersonObj));
+
+// make a string camelcase
+
+function toCamelCase(str = "") {
+  const words = str.split("_");
+  if (words.length < 2) return str;
+
+  const firstWord = words.shift();
+
+  return words.reduce((acc, curr) => {
+    const letters = curr.split("");
+    letters[0] = letters[0].toUpperCase();
+    acc += letters.join("");
+
+    return acc;
+  }, firstWord);
+}
+
+// console.log(toCamelCase("hello_world_this_is_js"));
+
+// private counter
+
+function createCounter() {
+  let count = 0;
+
+  return {
+    increment() {
+      count++;
+    },
+    decrement() {
+      count--;
+    },
+    getValue() {
+      return count;
+    },
+  };
+}
+
+// const cnt = createCounter();
+// cnt.increment();
+// cnt.increment();
+// cnt.decrement();
+// console.log(cnt.getValue());
+
