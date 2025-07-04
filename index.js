@@ -302,7 +302,7 @@ function deepEqualObject(p1, p2) {
   if (
     typeof p1 !== "object" ||
     p1 === null ||
-    typeof p2  !== "object" ||
+    typeof p2 !== "object" ||
     p2 === null
   )
     return false;
@@ -363,8 +363,8 @@ const person3 = {
   },
 };
 
-console.log(deepEqualObject(person1, person2)); // true ✅
-console.log(deepEqualObject(person2, person3)); // false ❌
+// console.log(deepEqualObject(person1, person2)); // true ✅
+// console.log(deepEqualObject(person2, person3)); // false ❌
 
 // Create a function createExpiringObject(obj, timeout) that returns a proxy object.
 // All properties should automatically delete themselves after `timeout` milliseconds.
@@ -375,3 +375,122 @@ console.log(deepEqualObject(person2, person3)); // false ❌
 // setTimeout(() => console.log(user.name), 3000); // undefined
 
 // ?? pending
+
+function valueOfFunction(a) {
+  return function (b) {
+    return function (c) {
+      return {
+        valueOf() {
+          return a + b + c;
+        },
+      };
+    };
+  };
+}
+
+// console.log(valueOfFunction(1)(2)(3).valueOf());
+
+// curring function
+
+function addTotal(a) {
+  return function (b) {
+    if (b === undefined) return a;
+    return addTotal(a + b);
+  };
+}
+
+// console.log(addTotal(1)(2)(3)());
+
+function valueOfFun(a) {
+  let sum = a;
+  function inner(b) {
+    sum += b;
+    return inner;
+  }
+  inner.valueOf = () => sum;
+  return inner;
+}
+
+// console.log(valueOfFun(1)(2)(3)(4).valueOf());
+
+function calculateValue(val) {
+  let total = val;
+  const obj = {
+    add(num) {
+      total += num;
+      return obj;
+    },
+    sub(num) {
+      total -= num;
+      return obj;
+    },
+    mul(num) {
+      total *= num;
+      return obj;
+    },
+    div(num) {
+      if (num === 0) throw new Error("Cannot divide by zero");
+      total /= num;
+      return obj;
+    },
+    value() {
+      return total;
+    },
+  };
+  return obj;
+}
+
+// console.log(calculateValue(5).add(2).sub(2).mul(5).div(5).value());
+
+const { add: addition, sub, value } = calculateValue(10);
+
+// addition(10).sub(-10);
+// console.log(value());
+
+function once(fn) {
+  let count = 0;
+  return function () {
+    if (count == 0) {
+      count++;
+      fn();
+    }
+  };
+}
+
+const doOnce = once(() => console.log("hello"));
+// doOnce();
+// doOnce();
+
+// custom setInterval using setTimeOut;
+
+function customSetInterval(fn, delay) {
+  let intervalId = 0;
+  let stop = false;
+
+  function repeatFun() {
+    intervalId = setTimeout(()=> {
+      if(stop) return;
+      fn();
+      repeatFun();
+    }, delay);
+  }
+
+  intervalId = setTimeout(repeatFun, delay);
+
+  return {
+    clear () {
+      stop = true;
+      clearTimeout(intervalId);
+    }
+  }
+}
+
+(function customIntervalTest() {
+  let count = 0;
+  const interval = customSetInterval(() => {
+    console.log("Ticking..", ++count);
+    if (count === 5) {
+      interval.clear();
+    }
+  }, 1000);
+})();
