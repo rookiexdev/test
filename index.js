@@ -35,6 +35,7 @@ const userProfile = {
     language: "en",
     timezone: "America/New_York",
   },
+  electronics: ["Mobile", "Laptop", "Smart Watch"],
 };
 
 function printObject(obj) {
@@ -468,8 +469,8 @@ function customSetInterval(fn, delay) {
   let stop = false;
 
   function repeatFun() {
-    intervalId = setTimeout(()=> {
-      if(stop) return;
+    intervalId = setTimeout(() => {
+      if (stop) return;
       fn();
       repeatFun();
     }, delay);
@@ -478,14 +479,14 @@ function customSetInterval(fn, delay) {
   intervalId = setTimeout(repeatFun, delay);
 
   return {
-    clear () {
+    clear() {
       stop = true;
       clearTimeout(intervalId);
-    }
-  }
+    },
+  };
 }
 
-(function customIntervalTest() {
+function customIntervalTest() {
   let count = 0;
   const interval = customSetInterval(() => {
     console.log("Ticking..", ++count);
@@ -493,4 +494,182 @@ function customSetInterval(fn, delay) {
       interval.clear();
     }
   }, 1000);
-})();
+}
+
+function objFlattern(obj, prefix = "", result = {}) {
+  for (let key in obj) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+    const value = obj[key];
+
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      objFlattern(value, fullKey, result);
+    } else {
+      result[fullKey] = value;
+    }
+  }
+  return result;
+}
+
+// console.log(objFlattern(userProfile));
+
+function retry(fn, retries, delay = 0) {
+  return new Promise((resolve, reject) => {
+    function attempt(remaining) {
+      try {
+        const result = fn();
+        if (result instanceof Promise) {
+          result.then(resolve).catch((err) => {
+            if (remaining <= 0) {
+              reject(err);
+            } else {
+              setTimeout(() => {
+                attempt(remaining - 1);
+              }, delay);
+            }
+          });
+        } else {
+          resolve(result);
+        }
+      } catch (error) {
+        if (remaining <= 0) reject(error);
+        setTimeout(() => attempt(retries - 1), delay);
+      }
+    }
+    attempt(retries);
+  });
+}
+
+let count = 0;
+function unstableFn() {
+  return new Promise((resolve, reject) => {
+    count++;
+    console.log("Try count ", count);
+    count < 9 ? reject("Opps!") : resolve("success");
+  });
+}
+
+function demo() {
+  retry(unstableFn, 10, 2000).then(console.log).catch(console.error);
+}
+
+// Implement sleep(ms) function
+
+function sleep(delay) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delay);
+  });
+}
+
+async function test() {
+  await sleep(3000);
+  console.log("HI");
+}
+
+// Create a Task Scheduler
+
+function delayTask(data, delay) {
+  return () =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(data);
+        resolve(data);
+      }, delay);
+    });
+}
+
+function scheduler() {
+  const queue = [];
+
+  const result = {
+    add(taskFn) {
+      queue.push(taskFn);
+      return result;
+    },
+
+    async start() {
+      // const task = queue.shift();
+      // Promise.resolve(task())
+      //   .then((data) => {
+      //     console.log(data);
+      //     if (queue.length > 0) result.start();
+      //   })
+      //   .catch(console.error);
+      for (let task of queue) await task();
+    },
+  };
+
+  return result;
+}
+
+function s1() {
+  scheduler()
+    .add(delayTask("Print after 2000", 2000))
+    .add(delayTask("Print after 1000", 1000))
+    .add(delayTask("Print after 500", 500))
+    .add(delayTask("Print after 200", 200))
+    .start();
+}
+
+const flatternPersonObj = {
+  id: 12345,
+  name: "Jane Doe",
+  email: "jane.doe@example.com",
+  "address.street": "123 Main St",
+  "address.city": "New York",
+  "address.state": "NY",
+  "address.postalCode": "10001",
+  "address.geo.lat": 40.7128,
+  "address.geo.lng": -74.006,
+  "settings.theme": "dark",
+  "settings.notifications.email": true,
+  "settings.notifications.sms": false,
+  "settings.notifications.push.enabled": true,
+  "settings.notifications.push.frequency": "daily",
+  "preferences.language": "en",
+  "preferences.timezone": "America/New_York",
+  electronics: ["Mobile", "Laptop", "Smart Watch"],
+};
+
+function unFlattern(obj) {
+  const result = {};
+  for (let flatKey in obj) {
+    const keys = flatKey.split(".");
+
+    let current = result;
+    keys.forEach((key, index) => {
+      if (index == keys.length - 1) {
+        current[key] = obj[flatKey];
+      } else {
+        if (!current[key] && typeof current[key] !== "object") {
+          current[key] = {};
+        }
+        current = current[key];
+      }
+    });
+  }
+
+  return result;
+}
+
+function unFlattern2(obj) {
+  const result = {};
+
+  for (let flatKey in obj) {
+    let curr = result;
+    const keys = flatKey.split(".");
+    keys.forEach((key, index) => {
+      if (index == keys.length - 1) {
+        curr[key] = obj[flatKey];
+      } else {
+        if (!curr[key] && typeof curr[key] !== "object") {
+          curr[key] = {};
+        }
+        curr = curr[key];
+      }
+    });
+  }
+
+  return result;
+}
+
+console.log(unFlattern2(flatternPersonObj));
